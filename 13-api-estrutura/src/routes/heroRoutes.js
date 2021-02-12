@@ -2,6 +2,7 @@ const BaseRoute = require('./base/baseRoute')
 
 class HeroRoutes extends BaseRoute {
     constructor(db) {
+        super()
         this.db = db
     }
 
