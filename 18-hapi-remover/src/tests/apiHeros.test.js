@@ -92,12 +92,12 @@ describe('Suite de testes da API Heroes', function ()  {
         })
 
         const statusCode = result.statusCode
-       // console.log('resultado', result.payload)
+   
         const {
             message,
             _id
         } = JSON.parse(result.payload)
-
+        
         assert.ok(statusCode === 200)
         assert.notStrictEqual(_id, undefined)
         assert.deepStrictEqual(message, "Heroi cadastrado com sucesso!")
@@ -124,21 +124,24 @@ describe('Suite de testes da API Heroes', function ()  {
 
     it('atualizar PATCH - /herois/:id - nao deve atualizar com ID incorreto!', async () => {
         const _id = `604057a6164ca61b94914df2`
-        const expected = {
-            poder: 'Super Mira'
-        }
 
         const result = await app.inject({
             method: 'PATCH',
             url: `/herois/${_id}`,
-            payload: JSON.stringify(expected)
+            payload: JSON.stringify({
+                poder: 'Super Mira'
+            })
         })
 
         const statusCode = result.statusCode
         const dados = JSON.parse(result.payload)
-
-        assert.ok(statusCode === 200)
-        assert.deepEqual(dados.message, 'Nao foi possivel atualizar!')
+        const expected = {
+            statusCode: 412,
+            error: 'Precondition Failed',
+            message: 'Id nao encontrado no banco!'
+        }
+        assert.ok(statusCode === 412)
+        assert.deepEqual(dados, expected)
     })
 
     it('remover DELETE - /herois/:id', async () => {
@@ -152,6 +155,23 @@ describe('Suite de testes da API Heroes', function ()  {
 
         assert.ok(statusCode === 200)
         assert.deepStrictEqual(dados.message, 'Heroi Removido com sucesso!')
+    })
+
+    it('remover DELETE - /herois/:id nao deve remover com id invalido', async () => {
+        const _id = 'ID_INVALIDO'
+        const result = await app.inject({
+            method: 'DELETE',
+            url: `/herois/${_id}`
+        })
+        const statusCode = result.statusCode
+        const dados = JSON.parse(result.payload)
+        const expected = {
+            statusCode: 500,
+            error: 'Internal Server Error',
+            message: 'An internal server error occurred'
+        }
+        assert.ok(statusCode === 500)
+        assert.deepStrictEqual(dados, expected)
     })
     
 })

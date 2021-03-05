@@ -1,5 +1,6 @@
 const BaseRoute = require('./base/baseRoute')
 const Joi = require('joi')
+const Boom = require('boom')
 
 const failAction = (request, headers, erro) => {
     throw erro;
@@ -38,7 +39,7 @@ class HeroRoutes extends BaseRoute {
                     return this.db.read(nome ? query : {}, skip, limit)
                 } catch (error) {
                     console.log('DEU RUIM', error)
-                    return "Erro interno no servidor"                    
+                    return Boom.internal()             
                 }
             }
         }
@@ -74,7 +75,7 @@ class HeroRoutes extends BaseRoute {
                     }
                 } catch (error) {
                     console.log('DEU RUIM', error)
-                    return 'Internal Error!'
+                    return Boom.internal()
                 }
             }
         }
@@ -108,9 +109,7 @@ class HeroRoutes extends BaseRoute {
                     const dados = JSON.parse(dadosString)
 
                     const result = await this.db.update(id, dados)
-                    if(result.nModified !== 1) return {
-                        message: 'Nao foi possivel atualizar!'
-                    }
+                    if(result.nModified !== 1) return Boom.preconditionFailed('Id nao encontrado no banco!')
                     
                     return {
                         message: 'Heroi atualizado com sucesso!'
@@ -118,7 +117,7 @@ class HeroRoutes extends BaseRoute {
                     
                 } catch (error) {
                     console.error('DEU RUIM', error)
-                    return 'Erro interno!'
+                    return Boom.internal()
                 }
             }
         }
@@ -142,16 +141,14 @@ class HeroRoutes extends BaseRoute {
                     const resultado = await this.db.delete(id)
                     
                     if(resultado.n !== 1)
-                    return {
-                        message: 'Nao foi possivel remover o item'
-                    }
+                    return Boom.preconditionFailed('Id nao encontrado no banco!')
 
                     return {
                         message: 'Heroi Removido com sucesso!'
                     }
                 } catch (error) {
                     console.log('DEU RUIM', error)
-                    return 'Erro Interno'
+                    return Boom.internal()
                 }
             }
         }
