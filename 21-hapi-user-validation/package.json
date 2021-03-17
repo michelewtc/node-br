@@ -1,0 +1,32 @@
+{
+  "name": "07-multi-db",
+  "version": "1.0.0",
+  "description": "docker run \\\r     --name postgres \\\r     -e POSTGRES_USER=michelewtc \\\r     -e POSTGRES_PASSWORD=minhasenha \\\r     -e POSTGRES_DB=heroes \\\r     -p 5432:5432",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha src/tests/*.js",
+    "test:watch": "mocha src/tests/*.js -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/inert": "^6.0.3",
+    "bcrypt": "^5.0.1",
+    "boom": "^7.3.0",
+    "hapi": "^17.7.0",
+    "hapi-auth-jwt2": "^10.2.0",
+    "hapi-swagger": "^9.1.3",
+    "inert": "^5.1.3",
+    "joi": "^14.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.11",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "vision": "^5.4.4"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1"
+  }
+}
