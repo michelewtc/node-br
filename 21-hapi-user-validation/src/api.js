@@ -5,6 +5,9 @@ const HeroiSchema = require('./db/strategies/mongodb/schemas/heroisSchema')
 const HeroRoutes = require('./routes/heroRoutes')
 const AuthRoutes = require('./routes/authRoutes')
 
+const Postgres = require('./db/strategies/postgres/postgres')
+const UsuarioSchema = require('./db/strategies/postgres/schemas/usuarioSchema')
+
 const HapiSwagger = require('hapi-swagger')
 const Vision = require('vision')
 const Inert = require('inert')
@@ -23,6 +26,10 @@ function mapRoutes(instance, methods) {
 async function main() {
     const connection = MongoDb.connect()
     const context = new Context(new MongoDb(connection, HeroiSchema))
+
+    const connectionPostgres = await Postgres.connect()
+    const model = await Postgres.defineModel(connectionPostgres, UsuarioSchema)
+    const contextPostgres = new Context(new Postgres(connectionPostgres, model))
 
     const swaggerOptions = {
         info: {
@@ -47,7 +54,16 @@ async function main() {
         //options: {
         //    expiresIn: 20
         //},
-        validate: (dado, request) => {
+        validate: async (dado, request) => {
+            const [result] = await contextPostgres.read({
+                username: dado.username.toLowerCase(),
+                id: dado.id
+            })
+            if(!result) {
+                return {
+                    isValid: false
+                }
+            }
             //verifica no banco se usuario continua ativo
             //verifica no banco se usuario continua pagando 
             
@@ -59,7 +75,7 @@ async function main() {
     app.auth.default('jwt')
     app.route([
         ...mapRoutes(new HeroRoutes(context), HeroRoutes.methods()),
-        ...mapRoutes(new AuthRoutes(JWT_SECRET), AuthRoutes.methods())
+        ...mapRoutes(new AuthRoutes(JWT_SECRET, contextPostgres), AuthRoutes.methods())
     ])
 
     await app.start()
